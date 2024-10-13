@@ -11,11 +11,6 @@ An all new library to make any level more dynamic! Add custom cameras to any sta
 - Compatibility with Goldenshine's Rails
 - Partial compatibility with Axis2D
 
-**Table of Contents**
-
-[TOCM]
-
-[TOC]
 
 # How to use:
 1. Add `lua.solcam = on`  to your levelheader to enable the camera
