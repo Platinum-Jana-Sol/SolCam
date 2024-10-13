@@ -57,7 +57,7 @@ Front Side X Offset: Camera Distance from Player [fracunits]
 Linedef Angle: Angle from Player [degrees]
 Front Side Y Offset: Camera Height Offset relative to Player [fracunits]
 
-###Autocancel Conditions
+### Autocancel Conditions
 `jump`:  SolCam cancels upon a jump
 `spring`: SolCam cancels when sprung
 `grounded`: SolCam cancels when you hit the ground
@@ -82,7 +82,7 @@ String Argument 2: Extra Autocancel Condition
 Front Side X Offset: Camera Transition Time [ticks]
 Tag: Sector tag where the Alternate Viewpoint Mapthing resides [number]
 
-###Autocancel Conditions
+### Autocancel Conditions
 `jump`:  SolCam cancels upon a jump
 `spring`: SolCam cancels when sprung
 `grounded`: SolCam cancels when you hit the ground
