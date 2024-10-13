@@ -30,11 +30,11 @@ This is the "OFF" mode of SolCam, where other cameras can take over, or where th
 
 ### Function Name: SOLCAMDF
 ### UDMF Arguments:
-Argument 1: Camera Transition Time [ticks]
-Argument 2: Angle for Exiting Camera [degrees]
+- Argument 1: Camera Transition Time [ticks]
+- Argument 2: Angle for Exiting Camera [degrees]
 
 ### Binary Arguments
-Linedef Angle: Angle for Exiting Camera [degrees]
+- Linedef Angle: Angle for Exiting Camera [degrees]
 
 ![](https://github.com/Platinum-Jana-Sol/SolCam/blob/main/images/DFArgs.png?raw=true)
 
@@ -45,23 +45,23 @@ Set a fixed camera that follows the player.
 
 ### Function Name: SOLCAMOR
 ### UDMF Arguments:
-Argument 1: Camera Transition Time [ticks]
-Argument 2: Camera Distance from Player [fracunits]
-Argument 3: Angle from Player [degrees]
-Argument 4: Camera Height Offset relative to Player [fracunits]
-Argument 5: Autocancel after [ticks]
-String Argument 2: Extra Autocancel Condition
+- Argument 1: Camera Transition Time [ticks]
+- Argument 2: Camera Distance from Player [fracunits]
+- Argument 3: Angle from Player [degrees]
+- Argument 4: Camera Height Offset relative to Player [fracunits]
+- Argument 5: Autocancel after [ticks]
+- String Argument 2: Extra Autocancel Condition
 
 ### Binary Arguments
-Front Side X Offset: Camera Distance from Player [fracunits]
-Linedef Angle: Angle from Player [degrees]
-Front Side Y Offset: Camera Height Offset relative to Player [fracunits]
+- Front Side X Offset: Camera Distance from Player [fracunits]
+- Linedef Angle: Angle from Player [degrees]
+- Front Side Y Offset: Camera Height Offset relative to Player [fracunits]
 
 ### Autocancel Conditions
-`jump`:  SolCam cancels upon a jump
-`spring`: SolCam cancels when sprung
-`grounded`: SolCam cancels when you hit the ground
-`carry`: SolCam cancels when you get carried by something
+- `jump`:  SolCam cancels upon a jump
+- `spring`: SolCam cancels when sprung
+- `grounded`: SolCam cancels when you hit the ground
+- `carry`: SolCam cancels when you get carried by something
 
 ![](https://github.com/Platinum-Jana-Sol/SolCam/blob/main/images/ORArgs.png?raw=true)
 
@@ -73,20 +73,20 @@ Note, this requires you to place an Alternate Viewpoint Thing to use this mode, 
 
 ### Function Name: SOLCAMSP
 ### UDMF Arguments:
-Argument 1: Camera Transition Time [ticks]
-Argument 2: Tag of Alternate Viewpoint Mapthing [number]
-Argument 5: Autocancel after [ticks]
-String Argument 2: Extra Autocancel Condition
+- Argument 1: Camera Transition Time [ticks]
+- Argument 2: Tag of Alternate Viewpoint Mapthing [number]
+- Argument 5: Autocancel after [ticks]
+- String Argument 2: Extra Autocancel Condition
 
 ### Binary Arguments
-Front Side X Offset: Camera Transition Time [ticks]
-Tag: Sector tag where the Alternate Viewpoint Mapthing resides [number]
+- Front Side X Offset: Camera Transition Time [ticks]
+- Tag: Sector tag where the Alternate Viewpoint Mapthing resides [number]
 
 ### Autocancel Conditions
-`jump`:  SolCam cancels upon a jump
-`spring`: SolCam cancels when sprung
-`grounded`: SolCam cancels when you hit the ground
-`carry`: SolCam cancels when you get carried by something
+- `jump`:  SolCam cancels upon a jump
+- `spring`: SolCam cancels when sprung
+- `grounded`: SolCam cancels when you hit the ground
+- `carry`: SolCam cancels when you get carried by something
 
 ![](https://github.com/Platinum-Jana-Sol/SolCam/blob/main/images/SPArgs.png?raw=true)
 
