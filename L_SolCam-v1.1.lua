@@ -4,7 +4,7 @@
  | (___   ___ | | |     __ _ _ __ ___  
   \___ \ / _ \| | |    / _` | '_ ` _ \ 
   ____) | (_) | | |___| (_| | | | | | |
- |_____/ \___/|_|\_____\__,_|_| |_| |_| v1.0
+ |_____/ \___/|_|\_____\__,_|_| |_| |_| v1.1
                                        
                            by Jana Sol
         Please do not edit or re-release as your own asset. 
@@ -65,12 +65,15 @@
                                                      $XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX$$
                                                      $$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 */
-local currentversion = 1
-local versionstring = "v1.0"
+local currentversion = 2
+local versionstring = "v1.1"
 
 if SolCam then
 	print("SolCam already loaded. Checking version...")
-	if Solcam.version > currentversion then
+	if SolCam.version == 1 then
+		print("\133 WARNING: The SolCam already loaded is critically out of date, please inform the mapper to upgrade IMMEDIATELY")
+		return
+	elseif SolCam.version > currentversion then
 		print("SolCam in this mod is out of date, please tell mapper to upgrade it.")
 		return
 	else
@@ -78,7 +81,7 @@ if SolCam then
 		SolCam.preloaded = true
 	end
 else
-	rawset(_G, "SolCam", {version = currentversion, preloaded = false}) 
+	rawset(_G, "SolCam", {version = currentversion, preloaded = false, hooksloaded = {}}) 
 end
 local axis2dloaded = false
 if axis2dudmf then
@@ -223,7 +226,7 @@ SolCam.DoSolCamTransition = function(oldmode, newmode, player)
 	end
 end
 
-SolCam.SwitchOrbital = function(line, mobj, sector)
+SolCam.SetOrbitalModeLine = function(line, mobj, sector)
 	SolCam.GetOldCamPosRelative(mobj.player)
 	if not udmf then -- Please dont use Binary...
 		--print("WARNING: Binary Mapping not recommended for this mod")
@@ -273,7 +276,11 @@ SolCam.SwitchOrbital = function(line, mobj, sector)
 	end
 end
 
-SolCam.SwitchDefault = function(line, mobj, sector)
+SolCam.SwitchOrbital = function(line, mobj, sector)
+	SolCam.SetOrbitalModeLine(line, mobj, sector)
+end
+
+SolCam.SetDefaultModeLine = function(line, mobj, sector)
 	SolCam.GetOldCamPosRelative(mobj.player)
 	if not udmf then 
 		--print("WARNING: Binary Mapping not recommended for this mod")
@@ -302,8 +309,12 @@ SolCam.SwitchDefault = function(line, mobj, sector)
 	end
 end
 
-SolCam.SwitchPoint = function(line, mobj, sector)
-	SolCam.GetOldCamPosRelative(mobj.player)
+SolCam.SwitchDefault = function(line, mobj, sector)
+	SolCam.SetDefaultModeLine(line, mobj, sector)
+end
+
+SolCam.SetPointModeLine = function(line, mobj, sector)
+    SolCam.GetOldCamPosRelative(mobj.player)
 	if not udmf then 
 		--print("WARNING: Binary Mapping not recommended for this mod")
 		mobj.player.solcam.transitiontime = line.frontside.rowoffset
@@ -373,6 +384,10 @@ SolCam.SwitchPoint = function(line, mobj, sector)
 		mobj.player.solcam.transitionrem = line.args[0]
 	end
 end
+
+SolCam.SwitchPoint = function(line, mobj, sector)
+	SolCam.SetPointModeLine(line, mobj, sector)
+end
 /*
 SolCam.SwitchSpline = function(line, mobj, sector)
 	SolCam.GetOldCamPosRelative(mobj.player)
@@ -408,7 +423,7 @@ SolCam.SwitchSpline = function(line, mobj, sector)
 end
 */
 
-SolCam.MapLoad = function()
+SolCam.MapStart = function()
 	for player in players.iterate do
 		player.solcam = {}
 		player.solcam.old = {}
@@ -431,7 +446,11 @@ SolCam.MapLoad = function()
 	end
 end
 
-SolCam.PlayerThinker = function(player)
+SolCam.MapLoad = function()
+    SolCam.MapStart()
+end
+
+SolCam.PlayerThink = function(player)
 	if mapheaderinfo[gamemap].solcam ~= "on" then return end
 	if not player.solcam then player.solcam = {} end
 	if not player.solcam.old then player.solcam.old = {} end
@@ -505,7 +524,11 @@ SolCam.PlayerThinker = function(player)
 	--print(player.solcam.transitionrem, CV_FindVar("cam_dist").value, CV_FindVar("cam_height").value)
 end
 
-SolCam.CMDinterrupt = function(player, cmd)
+SolCam.PlayerThinker = function(player)
+    SolCam.PlayerThink(player)
+end
+
+SolCam.CMD = function(player, cmd)
 	if mapheaderinfo[gamemap].solcam ~= "on" then return end
 	if axis2dloaded == true 
 		if player.mo.currentaxis then return end
@@ -528,14 +551,36 @@ SolCam.CMDinterrupt = function(player, cmd)
 	--print(player.solcam.transitionrem, CV_FindVar("cam_dist").value, CV_FindVar("cam_height").value)
 end
 
-addHook("LinedefExecute", SolCam.SwitchOrbital, "SOLCAMOR")
+SolCam.CMDinterrupt = function(player, cmd)
+    SolCam.CMD(player, cmd)
+end
 
-addHook("LinedefExecute", SolCam.SwitchDefault, "SOLCAMDF")
+if not SolCam.hooksloaded["Orbital"] then
+    addHook("LinedefExecute", SolCam.SwitchOrbital, "SOLCAMOR")
+    SolCam.hooksloaded["Orbital"] = true
+end
 
-addHook("LinedefExecute", SolCam.SwitchPoint, "SOLCAMSP")
+if not SolCam.hooksloaded["Default"] then
+    addHook("LinedefExecute", SolCam.SwitchDefault, "SOLCAMDF")
+    SolCam.hooksloaded["Default"] = true
+end
 
-addHook("PlayerThink", SolCam.PlayerThinker)
+if not SolCam.hooksloaded["Point"] then
+    addHook("LinedefExecute", SolCam.SwitchPoint, "SOLCAMSP")
+    SolCam.hooksloaded["Point"] = true
+end
 
-addHook("PlayerCmd", SolCam.CMDinterrupt)
+if not SolCam.hooksloaded["Player"] then
+    addHook("PlayerThink", SolCam.PlayerThinker)
+    SolCam.hooksloaded["Player"] = true
+end
 
-addHook("MapLoad", SolCam.MapLoad)
+if not SolCam.hooksloaded["CMD"] then
+    addHook("PlayerCmd", SolCam.CMDinterrupt)
+    SolCam.hooksloaded["CMD"] = true
+end
+
+if not SolCam.hooksloaded["MapLoad"] then
+    addHook("MapLoad", SolCam.MapLoad)
+    SolCam.hooksloaded["MapLoad"] = true
+end
