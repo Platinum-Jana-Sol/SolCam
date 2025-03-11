@@ -97,13 +97,13 @@ Note, this requires you to place an Alternate Viewpoint Thing to use this mode, 
 This literally is the original Static Point Mode!
 Note, this requires you to place an Alternate Viewpoint Thing to use this mode, and either tag it directly to the linedef (UDMF) or tag the sector its in to the linedef (Binary)
 
-### Function Name: SOLCAMSP
+### Function Name: SOLCAMSF
 ### UDMF Arguments:
 - Argument 1: Camera Transition Time [ticks]
 - Argument 2: Tag of Alternate Viewpoint Mapthing [number]
 - Argument 5: Autocancel after [ticks]
-- Angle: Direction to Point the Camera in [angle]
-- Tilt: The vertical tilt angle of the Camera [angle]
+- Angle of mapthing: Direction to Point the Camera in [angle]
+- Tilt of mapthing: The vertical tilt angle of the Camera [angle]
 - String Argument 2: Extra Autocancel Condition
 
 ### Binary Arguments
