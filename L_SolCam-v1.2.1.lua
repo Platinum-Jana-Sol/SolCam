@@ -4,7 +4,7 @@
  | (___   ___ | | |     __ _ _ __ ___  
   \___ \ / _ \| | |    / _` | '_ ` _ \ 
   ____) | (_) | | |___| (_| | | | | | |
- |_____/ \___/|_|\_____\__,_|_| |_| |_| v1.2
+ |_____/ \___/|_|\_____\__,_|_| |_| |_| v1.2.1
                                        
                            by Jana Sol
         Please do not edit or re-release as your own asset. 
@@ -65,8 +65,8 @@
                                                      $XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX$$
                                                      $$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 */
-local currentversion = 3
-local versionstring = "v1.2"
+local currentversion = 4
+local versionstring = "v1.2.1"
 
 if SolCam then
 	print("SolCam already loaded. Checking version...")
@@ -114,19 +114,22 @@ states[S_SOLCAM] = {
 }
 
 SolCam.GetClosestTurn = function(time, oldangle, newangle)
-	local intoldangle = FixedInt(AngleFixed(oldangle))
-	local intnewangle = FixedInt(AngleFixed(newangle))
+	local intoldangle = AngleFixed(oldangle)
+	local intnewangle = AngleFixed(newangle)
 	local del1 = intoldangle - intnewangle
 	local del2 = intnewangle - intoldangle
 	local delangle = oldangle - newangle
 	if delangle < 0 then delangle = InvAngle(delangle) end
+	--print(tostring(FixedInt(intoldangle)).." -> "..tostring(FixedInt(intnewangle)))
 	if del1 > del2 then
-		--print(tostring(FixedInt(AngleFixed(del1))).." > "..tostring(FixedInt(AngleFixed(del2))))
+		--print(tostring(FixedInt(del1)).." > "..tostring(FixedInt(del2)))
 		local offset = ease.inoutsine(time, 0, delangle)
+		--print(FixedInt(AngleFixed(oldangle - offset)))
 		return oldangle - offset
 	else
-		--print(tostring(FixedInt(AngleFixed(del2))).." >= "..tostring(FixedInt(AngleFixed(del1))))
+		--print(tostring(FixedInt(del2)).." >= "..tostring(FixedInt(del1)))
 		local offset = ease.inoutsine(time, 0, delangle)
+		--print(FixedInt(AngleFixed(oldangle + offset)))
 		return oldangle + offset
 	end
 end
@@ -193,23 +196,39 @@ SolCam.DoSolCamTransition = function(oldmode, newmode, player)
 		player.solcam.mobj.angle = R_PointToAngle2(x, y, player.mo.x, player.mo.y)
 		player.awayviewaiming = -R_PointToAngle2(0, player.mo.z, R_PointToDist2(x, y, player.mo.x, player.mo.y), z)
 		P_MoveOrigin(player.solcam.mobj, x, y, z)
-	elseif (oldmode == "default" and newmode == "staticpointfixed") or
-		   (oldmode == "orbital" and newmode == "staticpointfixed") then
+	elseif (oldmode == "default" and newmode == "staticpointfixed") then  
 		local x = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.x, FixedMul(player.solcam.old.radius, cos(player.solcam.old.XYangle))+player.mo.x)
 		local y = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.y, FixedMul(player.solcam.old.radius, sin(player.solcam.old.XYangle))+player.mo.y)
 		local z = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.z, player.solcam.old.Zheight+player.mo.z)
 		local XYangle = SolCam.GetClosestTurn(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.XYangle, player.solcam.old.XYangle + ANGLE_180)
-		local Zangle = SolCam.GetClosestTurn(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.Zangle, R_PointToAngle2(0, 0, player.solcam.old.radius, player.solcam.old.Zheight))
+		local Zangle = SolCam.GetClosestTurn(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.Zangle, -R_PointToAngle2(0, 0, player.solcam.old.radius, player.solcam.old.Zheight))
 		player.solcam.mobj.angle = XYangle
 		player.awayviewaiming = Zangle
 		P_MoveOrigin(player.solcam.mobj, x, y, z)
-	elseif (oldmode == "staticpointfixed" and newmode == "default") or
-		   (oldmode == "staticpointfixed" and newmode == "orbital") then
+	elseif (oldmode == "staticpointfixed" and newmode == "default") then
 		local x = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, FixedMul(player.solcam.radius, cos(player.solcam.XYangle))+player.mo.x, player.solcam.old.x)
 		local y = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, FixedMul(player.solcam.radius, sin(player.solcam.XYangle))+player.mo.y, player.solcam.old.y)
 		local z = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.Zheight+player.mo.z, player.solcam.old.z)
 		local XYangle = SolCam.GetClosestTurn(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.XYangle + ANGLE_180, player.solcam.old.XYangle)
-		local Zangle = SolCam.GetClosestTurn(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, R_PointToAngle2(0, 0, player.solcam.radius, player.solcam.Zheight), player.solcam.old.Zangle)
+		local Zangle = SolCam.GetClosestTurn(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, -R_PointToAngle2(0, 0, player.solcam.radius, player.solcam.Zheight), player.solcam.old.Zangle)
+		player.solcam.mobj.angle = XYangle
+		player.awayviewaiming = Zangle
+		P_MoveOrigin(player.solcam.mobj, x, y, z)
+	elseif (oldmode == "orbital" and newmode == "staticpointfixed") then
+		local x = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.x, FixedMul(player.solcam.old.radius, cos(player.solcam.old.XYangle))+player.mo.x)
+		local y = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.y, FixedMul(player.solcam.old.radius, sin(player.solcam.old.XYangle))+player.mo.y)
+		local z = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.z, player.solcam.old.Zheight+player.mo.z)
+		local XYangle = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.XYangle, player.solcam.old.XYangle - ANGLE_180)
+		local Zangle = SolCam.GetClosestTurn(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.Zangle, -R_PointToAngle2(0, 0, player.solcam.old.radius, player.solcam.old.Zheight))
+		player.solcam.mobj.angle = XYangle
+		player.awayviewaiming = Zangle
+		P_MoveOrigin(player.solcam.mobj, x, y, z)
+	elseif (oldmode == "staticpointfixed" and newmode == "orbital") then
+		local x = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, FixedMul(player.solcam.radius, cos(player.solcam.XYangle))+player.mo.x, player.solcam.old.x)
+		local y = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, FixedMul(player.solcam.radius, sin(player.solcam.XYangle))+player.mo.y, player.solcam.old.y)
+		local z = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.Zheight+player.mo.z, player.solcam.old.z)
+		local XYangle = ease.inoutsine(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, player.solcam.XYangle - ANGLE_180, player.solcam.old.XYangle)
+		local Zangle = SolCam.GetClosestTurn(player.solcam.transitionrem*FRACUNIT/player.solcam.transitiontime, -R_PointToAngle2(0, 0, player.solcam.radius, player.solcam.Zheight), player.solcam.old.Zangle)
 		player.solcam.mobj.angle = XYangle
 		player.awayviewaiming = Zangle
 		P_MoveOrigin(player.solcam.mobj, x, y, z)
@@ -293,8 +312,6 @@ SolCam.SetOrbitalMode = function(player, transitiontime, radius, XYangle, Zheigh
 		player.solcam.cancelflag = "jump"
 	elseif string.lower(cancelflag) == "spring" then
 		player.solcam.cancelflag = "spring"
-	elseif string.lower(cancelflag) == "spring" then
-		player.solcam.cancelflag = "spring"
 	elseif string.lower(cancelflag) == "grounded" then
 		player.solcam.cancelflag = "grounded"
 	elseif string.lower(cancelflag) == "carry" then
@@ -348,8 +365,6 @@ SolCam.SetOrbitalModeLine = function(line, mobj, sector)
 				cancelflag = "jump"
 			elseif string.lower(line.stringargs[1]) == "spring" then
 				cancelflag = "spring"
-			elseif string.lower(line.stringargs[1]) == "spring" then
-				cancelflag = "spring"
 			elseif string.lower(line.stringargs[1]) == "grounded" then
 				cancelflag = "grounded"
 			elseif string.lower(line.stringargs[1]) == "carry" then
@@ -382,6 +397,8 @@ SolCam.SetDefaultMode = function(player, transitiontime, XYangle)
 	player.solcam.radius = radius
 	player.solcam.XYangle = XYangle
 	player.solcam.Zheight = Zheight
+	player.solcam.activetimer = 0
+	player.solcam.cancelflag = "none"
 	player.solcam.mode = "default"
 	if player.solcam.old.mode == player.solcam.mode and player.solcam.transitionrem == 0 then
 		return
@@ -436,6 +453,18 @@ SolCam.SetPointMode = function(player, transitiontime, pointX, pointY, pointZ, c
 	player.solcam.y = pointY
 	player.solcam.z = pointZ
 	player.solcam.mode = "staticpoint"
+	player.solcam.activetimer = canceltics
+	if string.lower(cancelflag) == "jump" then
+		player.solcam.cancelflag = "jump"
+	elseif string.lower(cancelflag) == "spring" then
+		player.solcam.cancelflag = "spring"
+	elseif string.lower(cancelflag) == "grounded" then
+		player.solcam.cancelflag = "grounded"
+	elseif string.lower(cancelflag) == "carry" then
+		player.solcam.cancelflag = "carry"
+	else
+		player.solcam.cancelflag = "none"
+	end
 	if player.solcam.old.x == player.solcam.x and player.solcam.old.y == player.solcam.y and player.solcam.old.z == player.solcam.z and player.solcam.old.mode == player.solcam.mode and player.solcam.transitionrem == 0 then
 		return
 	elseif player.solcam.transitionrem > 0 then
@@ -486,8 +515,6 @@ SolCam.SetPointModeLine = function(line, mobj, sector)
 				cancelflag = "jump"
 			elseif string.lower(line.stringargs[1]) == "spring" then
 				cancelflag = "spring"
-			elseif string.lower(line.stringargs[1]) == "spring" then
-				cancelflag = "spring"
 			elseif string.lower(line.stringargs[1]) == "grounded" then
 				cancelflag = "grounded"
 			elseif string.lower(line.stringargs[1]) == "carry" then
@@ -522,6 +549,18 @@ SolCam.SetPointFixedMode = function(player, transitiontime, pointX, pointY, poin
 	player.solcam.z = pointZ
 	player.solcam.XYangle = angle
 	player.solcam.Zangle = tilt
+	player.solcam.activetimer = canceltics
+	if string.lower(cancelflag) == "jump" then
+		player.solcam.cancelflag = "jump"
+	elseif string.lower(cancelflag) == "spring" then
+		player.solcam.cancelflag = "spring"
+	elseif string.lower(cancelflag) == "grounded" then
+		player.solcam.cancelflag = "grounded"
+	elseif string.lower(cancelflag) == "carry" then
+		player.solcam.cancelflag = "carry"
+	else
+		player.solcam.cancelflag = "none"
+	end
 	player.solcam.mode = "staticpointfixed"
 	if player.solcam.old.x == player.solcam.x and player.solcam.old.y == player.solcam.y and player.solcam.old.z == player.solcam.z and player.solcam.old.mode == player.solcam.mode and player.solcam.transitionrem == 0 then
 		return
@@ -576,8 +615,6 @@ SolCam.SetPointFixedModeLine = function(line, mobj, sector)
 		if line.stringargs[1] then --autocancel flag
 			if string.lower(line.stringargs[1]) == "jump" then
 				cancelflag = "jump"
-			elseif string.lower(line.stringargs[1]) == "spring" then
-				cancelflag = "spring"
 			elseif string.lower(line.stringargs[1]) == "spring" then
 				cancelflag = "spring"
 			elseif string.lower(line.stringargs[1]) == "grounded" then
